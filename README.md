@@ -92,6 +92,7 @@ The extension refreshes usage through Claude.ai's internal authenticated API.
 - **Google Chrome**: Manifest V3, uses `manifest.json`.
 - **Mozilla Firefox**: Manifest V3, uses `manifest.firefox.json` (packaged as `manifest.json` by the build script).
 - **Microsoft Edge**: runs the Chrome package, published on [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/ilidbhklkpefboidlfeoiiacepcefinp).
+- **Safari** (personal build, not published): uses `manifest.safari.json`, built by `safari/build.sh`. See [Safari (Claude Monitor Dock app)](#safari-claude-monitor-dock-app).
 
 The codebase uses the standard `chrome.*` extension APIs, which Firefox supports via the WebExtensions namespace.
 
@@ -124,6 +125,19 @@ Firefox uses a separate manifest (`manifest.firefox.json`). To load it temporari
 5. The add-on stays loaded until you restart Firefox.
 
 For a permanent install, use the published add-on at <https://addons.mozilla.org/firefox/addon/claude-usage-meter/>.
+
+### Safari (Claude Monitor Dock app)
+
+A personal build: the dashboard fills a Safari Dock app for `claude.ai`, and normal Claude tabs keep their normal interface. Design and test results: `docs/pwa-plan.md`. Do these steps on each Mac:
+
+1. Install Xcode, then run `sudo xcodebuild -license accept`.
+2. In Xcode → Settings → Accounts, sign in with your Apple Account. A free Personal Team is enough.
+3. Run `SAFARI_TEAM=<team id> safari/build.sh`. It builds the app, signs it, installs `Claude Monitor Extension.app` in `~/Applications`, and opens it. If signing fails on the first build, open `build/safari/Claude Monitor Extension/Claude Monitor Extension.xcodeproj`, select your team for both targets, and run the script again. Xcode shows the team ID in that error message.
+4. In Safari → Settings → Extensions, turn on the extension and allow it on `claude.ai`.
+5. Open `https://claude.ai/new?monitor` and select **File → Add to Dock**. Safari proposes `https://claude.ai/`: change the URL back to `https://claude.ai/new?monitor`. The `?monitor` marker makes this app the monitor app.
+6. Open the new Dock app. In its **Settings → Extensions**, turn on the extension and allow it on `claude.ai`. Then sign in to Claude in the app window.
+
+Copying the built app to another Mac is not tested: the app is not notarized, and Safari may treat its extension as unsigned there.
 
 ## Notes for local testing
 
