@@ -30,3 +30,6 @@ Thumbs.db
 **/.mcp.json
 **/.claude.json
 .claude/settings.json
+
+# Safari Xcode build output (safari-probe)
+/build/

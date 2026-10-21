@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Claude Monitor Dock Probe",
+  "version": "0.0.2",
+  "description": "Feasibility probe for the Claude Dock app (docs/pwa-plan.md steps 2-4). Not the product.",
+  "permissions": ["storage"],
+  "host_permissions": ["https://claude.ai/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://claude.ai/*"],
+      "js": ["probe.js"],
+      "run_at": "document_start"
+    }
+  ]
+}
