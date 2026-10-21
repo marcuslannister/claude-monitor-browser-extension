@@ -33,3 +33,6 @@ Thumbs.db
 
 # Safari Xcode build output (safari-probe)
 /build/
+
+# CodeGraph local index
+/.codegraph/
