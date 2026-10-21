@@ -811,8 +811,24 @@ function planLabel(tier, caps, ravenType) {
   return null; // unknown tier → show nothing rather than a wrong label
 }
 
+// Safari's Claude Monitor Dock app: the worker's own requests carry no claude.ai
+// sign-in there (docs/pwa-plan.md), so the signed-in page reads for it
+// (page/dock.js). Only the Safari manifest loads that script.
+const VIA_DOCK = Boolean(chrome.runtime.getManifest().content_scripts?.some(s => s.js?.includes('page/dock.js')));
+
+async function claudeFetch(url, init) {
+  if (VIA_DOCK) {
+    for (const tab of await chrome.tabs.query({ url: CLAUDE_PAGES })) {
+      const reply = await chrome.tabs.sendMessage(tab.id, { type: 'DOCK_FETCH', url, headers: init.headers }).catch(() => null);
+      if (reply?.error) throw new TypeError(reply.error);  // a network failure, like fetch()
+      if (reply) return new Response(reply.body || null, { status: reply.status });
+    }
+  }
+  return fetch(url, init);
+}
+
 async function fetchClaudeJson(url) {
-  const response = await fetch(url, {
+  const response = await claudeFetch(url, {
     method: 'GET',
     credentials: 'include',
     headers: {
@@ -984,7 +1000,7 @@ function isTransientFailure(error) {
 
 async function fetchRoutineBudget(orgId) {
   try {
-    const response = await fetch(ROUTINE_BUDGET_URL, {
+    const response = await claudeFetch(ROUTINE_BUDGET_URL, {
       method: 'GET',
       credentials: 'include',
       headers: {

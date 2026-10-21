@@ -1,5 +1,12 @@
 // ─── Claude Usage Monitor: Popup Script ──────────────────────────────────────
 
+// Safari's Claude Monitor Dock app shows this page full-window (page/dock.js).
+if (new URLSearchParams(location.search).has('dock')) {
+  document.documentElement.dataset.dock = '';
+  // Without this, page/dock.js reloads the page once (Safari's cold-start blank frame).
+  parent.postMessage('claude-monitor-dock-ready', 'https://claude.ai');
+}
+
 const USAGE_URL   = 'https://claude.ai/settings/usage';
 const SIGN_IN_URL = 'https://claude.ai/login';
 // Free plans have no usage page; the chat is where their limits show up.
