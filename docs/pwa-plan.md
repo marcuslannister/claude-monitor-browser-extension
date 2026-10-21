@@ -60,7 +60,24 @@ Probe v0.0.2 marks the app when the launch URL has `?monitor`, and stores the ma
 - Add to Dock proposes `https://claude.ai/` from Claude's manifest. The user must edit the URL to add `?monitor`. Safari keeps the edited start URL.
 - Each Dock app has its own extension storage, separate from Safari and from other Dock apps.
 - Activation rule for step 5: `display-mode: standalone` and a mark in extension `storage.local`, set when the launch URL has `?monitor`. Do not use page `localStorage`, and do not depend on the current URL.
-- Local storage of usage data inside the Dock app is unverified.
+### Dashboard in the Dock app (step 5, 2026-10-21)
+
+Build: `SAFARI_TEAM=<team id> safari/build.sh` converts `extension/` with `manifest.safari.json`, signs it, and installs `Claude Monitor Extension.app` in `~/Applications`. Create the Dock app from `https://claude.ai/new?monitor` (edit the URL in Add to Dock).
+
+- `page/dock.js` shows the existing popup (`popup.html?dock`) full-window in the monitor app, and hides it on Claude's sign-in pages.
+- The background script's own requests carry no Dock app sign-in (`auth-failed` while the page was signed in). `dock.js` does the claude.ai reads for it (`claudeFetch` in `background.js`, Safari build only). Usage data is stored and shown in the Dock app.
+- On a cold app start, Safari loads an empty page into the dashboard frame; a new `src` does not help, a page reload does. `dock.js` reloads once when the dashboard does not report ready within 3 s. Cause unknown.
+- Each Dock app has its own Claude session after sign-in in it. A sign-out in Safari or in another Dock app does not sign out the monitor app.
+
+| Check | Result |
+| --- | --- |
+| Dashboard after app start, with usage, reset times, update time | Pass |
+| Resize; manual refresh changes the update time | Pass |
+| Old Claude Dock app and normal Safari tab keep the normal interface | Pass |
+| App start while signed out: Claude sign-in in the app window, dashboard after login | Pass |
+| Session expires while the app is open: refresh opens Claude sign-in | Code in place (`dock.js`), not tested |
+
+Known limits: links in the dashboard (sign in, usage page, help) open in Safari, not in the Dock app. Safari does not support the `notifications` permission, so alerts are unverified.
 
 ## Local build prerequisite
 
